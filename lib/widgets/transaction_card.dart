@@ -138,6 +138,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
   final _service = TransactionService();
   late String _category;
   late bool _isExpense;
+	late bool _confirmed;
   late TextEditingController _descController;
   bool _isSaving = false;
 
@@ -158,6 +159,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
     _category = widget.transaction.category;
     if (!_categories.contains(_category)) _category = 'other';
     _isExpense = widget.transaction.isExpense;
+		_confirmed = widget.transaction.confirmed;
     _descController = TextEditingController(
       text: widget.transaction.description ?? '',
     );
@@ -176,6 +178,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
         'category': _category,
         'is_expense': _isExpense,
         'description': _descController.text.trim(),
+				'confirmed': _confirmed,
       });
       widget.onSave();
     } catch (e) {
@@ -226,6 +229,15 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
             contentPadding: EdgeInsets.zero,
           ),
           const SizedBox(height: 16),
+
+					CheckboxListTile(
+            title: const Text('Save as default for this merchant'),
+            subtitle: const Text('Updates past entries and trains the AI for future ones'),
+            value: _confirmed,
+            onChanged: (val) => setState(() => _confirmed = val!),
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading, // Puts checkbox on the left
+          ),
 
           TextField(
             controller: _descController,
