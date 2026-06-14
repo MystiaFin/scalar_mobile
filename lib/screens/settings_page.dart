@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../theme/theme_notifier.dart';
+import 'theme_selection_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -47,8 +47,8 @@ class _SettingsPageState extends State<SettingsPage> {
       style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).colorScheme.primary,
         letterSpacing: 1,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }
@@ -86,21 +86,16 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         _buildSectionLabel('Appearance'),
         const SizedBox(height: 4),
-        ValueListenableBuilder<ThemeMode>(
-          valueListenable: themeNotifier,
-          builder: (context, mode, _) {
-            final isDark = mode == ThemeMode.dark;
-            return SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              secondary: Icon(
-                isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-              ),
-              title: const Text('Dark mode'),
-              subtitle: Text(isDark ? 'Mocha' : 'Latte'),
-              value: isDark,
-              onChanged: (_) => toggleTheme(),
-            );
-          },
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.palette_outlined),
+          title: const Text('Themes'),
+          subtitle: const Text('Color scheme and dark mode'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ThemeSelectionPage()),
+          ),
         ),
       ],
     );
