@@ -8,13 +8,32 @@ class TransactionRow extends StatelessWidget {
 
   IconData _iconForCategory(String category) {
     switch (category.toLowerCase()) {
-      case 'food & drink':   return Icons.restaurant_outlined;
-      case 'transport':      return Icons.directions_car_outlined;
-      case 'shopping':       return Icons.shopping_bag_outlined;
-      case 'health':         return Icons.favorite_outline;
-      case 'entertainment':  return Icons.movie_outlined;
-      default:               return Icons.receipt_outlined;
+      case 'food & drink':
+        return Icons.restaurant_outlined;
+      case 'transport':
+        return Icons.directions_car_outlined;
+      case 'shopping':
+        return Icons.shopping_bag_outlined;
+      case 'health':
+        return Icons.favorite_outline;
+      case 'entertainment':
+        return Icons.movie_outlined;
+      default:
+        return Icons.receipt_outlined;
     }
+  }
+
+  String _formatAmount(double amount, bool isExpense) {
+    String val = amount.toStringAsFixed(
+      amount.truncateToDouble() == amount ? 0 : 2,
+    );
+
+    val = val.replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},',
+    );
+
+    return isExpense ? '-$val' : '+$val';
   }
 
   @override
@@ -31,7 +50,11 @@ class TransactionRow extends StatelessWidget {
               color: colors.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(_iconForCategory(transaction.category), color: colors.primary, size: 20),
+            child: Icon(
+              _iconForCategory(transaction.category),
+              color: colors.primary,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -40,14 +63,29 @@ class TransactionRow extends StatelessWidget {
               children: [
                 Text(
                   transaction.merchant,
-                  style: TextStyle(color: colors.onSurface, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: colors.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   transaction.category,
-                  style: TextStyle(color: colors.onSurface.withOpacity(0.5), fontSize: 12),
+                  style: TextStyle(
+                    color: colors.onSurface.withOpacity(0.5),
+                    fontSize: 12,
+                  ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            _formatAmount(transaction.amount, transaction.isExpense),
+            style: TextStyle(
+              color: transaction.isExpense ? colors.error : colors.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
             ),
           ),
         ],
