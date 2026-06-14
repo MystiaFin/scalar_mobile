@@ -14,6 +14,31 @@ class _ChartPageState extends State<ChartPage> {
   final _service = TransactionService();
   late Future<List<Transaction>> _transactions;
 
+  DateTime _selectedMonth = DateTime(DateTime.now().year, DateTime.now().month);
+
+  List<DateTime> get _months => List.generate(
+    12,
+    (i) => DateTime(DateTime.now().year, DateTime.now().month - i),
+  );
+
+  String _formatMonth(DateTime dt) {
+    const names = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return '${names[dt.month - 1]} ${dt.year}';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -23,15 +48,15 @@ class _ChartPageState extends State<ChartPage> {
   Map<String, double> _buildTotals(List<Transaction> txns) {
     final map = <String, double>{};
     for (final t in txns) {
-      if (t.isExpense) {
-        map[t.category] = (map[t.category] ?? 0) + t.amount;
-      }
+      if (!t.isExpense) continue;
+      if (t.date.year != _selectedMonth.year ||
+          t.date.month != _selectedMonth.month)
+        continue;
+      map[t.category] = (map[t.category] ?? 0) + t.amount;
     }
-    // Sort descending so biggest slice is first
-    final sorted = Map.fromEntries(
+    return Map.fromEntries(
       map.entries.toList()..sort((a, b) => b.value.compareTo(a.value)),
     );
-    return sorted;
   }
 
   String _fmt(double amount) {
@@ -47,7 +72,22 @@ class _ChartPageState extends State<ChartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Overview')),
+      appBar: AppBar(
+        title: DropdownButton<DateTime>(
+          value: _selectedMonth,
+          underline: const SizedBox(), // hides the default underline
+          icon: const Icon(Icons.expand_more),
+          style: Theme.of(context).textTheme.titleLarge,
+          items: _months
+              .map(
+                (m) => DropdownMenuItem(value: m, child: Text(_formatMonth(m))),
+              )
+              .toList(),
+          onChanged: (val) {
+            if (val != null) setState(() => _selectedMonth = val);
+          },
+        ),
+      ),
       body: FutureBuilder<List<Transaction>>(
         future: _transactions,
         builder: (context, snapshot) {
