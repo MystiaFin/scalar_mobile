@@ -75,7 +75,7 @@ class _ChartPageState extends State<ChartPage> {
       appBar: AppBar(
         title: DropdownButton<DateTime>(
           value: _selectedMonth,
-          underline: const SizedBox(), // hides the default underline
+          underline: const SizedBox(),
           icon: const Icon(Icons.expand_more),
           style: Theme.of(context).textTheme.titleLarge,
           items: _months
