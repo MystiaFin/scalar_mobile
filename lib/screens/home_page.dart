@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../state/app_state.dart';
 import '../services/transaction_service.dart';
 import '../models/transaction.dart';
 import '../widgets/transaction_card.dart';
@@ -15,24 +16,27 @@ class _HomePageState extends State<HomePage> {
   late Future<List<Transaction>> _transactions;
 
   DateTime _selectedMonth = DateTime(DateTime.now().year, DateTime.now().month);
-  final Set<String> _selectedCategories = {};
 
   static const _allCategories = [
-    'food & drink',
-    'transport',
-    'utilities',
-    'entertainment',
-    'shopping',
-    'health',
-    'transfer',
-    'other',
+    'food & drink', 'transport', 'utilities',
+    'entertainment', 'shopping', 'health', 'transfer', 'other',
   ];
 
   @override
   void initState() {
     super.initState();
     _transactions = _service.getTransactions();
+    // Rebuild whenever ChartPage (or anything else) changes the filter
+    categoryFilterNotifier.addListener(_onFilterChanged);
   }
+
+  @override
+  void dispose() {
+    categoryFilterNotifier.removeListener(_onFilterChanged);
+    super.dispose();
+  }
+
+  void _onFilterChanged() => setState(() {});
 
   List<DateTime> get _months => List.generate(
         12,
@@ -56,11 +60,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<Transaction> _applyFilters(List<Transaction> txns) {
+    final activeCategories = categoryFilterNotifier.value;
     return txns.where((t) {
       final matchesMonth = t.date.year == _selectedMonth.year &&
           t.date.month == _selectedMonth.month;
-      final matchesCategory = _selectedCategories.isEmpty ||
-          _selectedCategories.contains(t.category.toLowerCase());
+      final matchesCategory = activeCategories.isEmpty ||
+          activeCategories.contains(t.category.toLowerCase());
       return matchesMonth && matchesCategory;
     }).toList();
   }
@@ -92,8 +97,8 @@ class _HomePageState extends State<HomePage> {
                     const Spacer(),
                     TextButton(
                       onPressed: () {
+                        categoryFilterNotifier.value = {};
                         setSheetState(() {});
-                        setState(() => _selectedCategories.clear());
                       },
                       child: const Text('Clear all'),
                     ),
@@ -104,16 +109,13 @@ class _HomePageState extends State<HomePage> {
               for (final cat in _allCategories)
                 CheckboxListTile(
                   title: Text(cat),
-                  value: _selectedCategories.contains(cat),
+                  value: categoryFilterNotifier.value.contains(cat),
                   controlAffinity: ListTileControlAffinity.leading,
                   onChanged: (checked) {
-                    setSheetState(() {
-                      setState(() {
-                        checked! 
-                          ? _selectedCategories.add(cat)
-                          : _selectedCategories.remove(cat);
-                      });
-                    });
+                    final updated = Set<String>.from(categoryFilterNotifier.value);
+                    checked! ? updated.add(cat) : updated.remove(cat);
+                    categoryFilterNotifier.value = updated;
+                    setSheetState(() {});
                   },
                 ),
               const SizedBox(height: 16),
@@ -147,16 +149,11 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.receipt_long_outlined,
-            size: 48,
-            color: colors.onSurface.withOpacity(0.25),
-          ),
+          Icon(Icons.receipt_long_outlined, size: 48,
+              color: colors.onSurface.withOpacity(0.25)),
           const SizedBox(height: 12),
-          Text(
-            'No transactions found',
-            style: TextStyle(color: colors.onSurface.withOpacity(0.45)),
-          ),
+          Text('No transactions found',
+              style: TextStyle(color: colors.onSurface.withOpacity(0.45))),
         ],
       ),
     );
@@ -164,7 +161,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final hasActiveFilter = _selectedCategories.isNotEmpty;
+    final activeCategories = categoryFilterNotifier.value;
 
     return Scaffold(
       appBar: AppBar(
@@ -184,8 +181,8 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             tooltip: 'Filter by category',
             icon: Badge(
-              isLabelVisible: hasActiveFilter,
-              label: Text('${_selectedCategories.length}'),
+              isLabelVisible: activeCategories.isNotEmpty,
+              label: Text('${activeCategories.length}'),
               child: const Icon(Icons.filter_list),
             ),
             onPressed: _openCategoryFilter,
@@ -206,7 +203,6 @@ class _HomePageState extends State<HomePage> {
           if (filtered.isEmpty) return _buildEmptyState();
 
           final grouped = _groupByDate(filtered);
-
           return ListView(
             children: [
               for (final entry in grouped.entries) ...[

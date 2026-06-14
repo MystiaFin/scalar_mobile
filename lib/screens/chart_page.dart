@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/transaction.dart';
 import '../services/transaction_service.dart';
+import '../state/app_state.dart';
 
 class ChartPage extends StatefulWidget {
   const ChartPage({super.key});
@@ -150,6 +151,15 @@ class _ChartPageState extends State<ChartPage> {
           sections: sections,
           sectionsSpace: 3,
           centerSpaceRadius: 50,
+          pieTouchData: PieTouchData(
+            touchCallback: (event, response) {
+              if (event is! FlTapUpEvent) return;
+              final idx = response?.touchedSection?.touchedSectionIndex ?? -1;
+              if (idx < 0 || idx >= entries.length) return;
+              categoryFilterNotifier.value = {entries[idx].key};
+              tabNotifier.value = 0;
+            },
+          ),
         ),
       ),
     );
