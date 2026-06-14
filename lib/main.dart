@@ -3,7 +3,7 @@ import 'theme/app_theme.dart';
 import 'theme/dark/mocha.dart';
 import 'theme/light/latte.dart';
 import 'theme/theme_notifier.dart';
-import 'screens/home_page.dart';
+import 'screens/shell_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         theme:     AppTheme.from(Latte()),
         darkTheme: AppTheme.from(Mocha()),
         themeMode: mode,
-        home: const HomePage(),
+        home: const ShellPage(),
       ),
     );
   }
