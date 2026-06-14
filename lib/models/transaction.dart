@@ -6,6 +6,7 @@ class Transaction {
   final bool isExpense;
   final DateTime date;
   final bool confirmed;
+	final String? description;
 
   Transaction({
     required this.id,
@@ -15,6 +16,7 @@ class Transaction {
     required this.isExpense,
     required this.date,
     required this.confirmed,
+		required this.description
   });
 
   factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
@@ -25,6 +27,7 @@ class Transaction {
     isExpense: json['is_expense'],
     date: DateTime.parse(json['date']),
     confirmed: json['confirmed'],
+		description: json['description'],
   );
 }
 

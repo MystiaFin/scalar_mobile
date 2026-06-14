@@ -159,8 +159,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                for (final t in entry.value) TransactionRow(transaction: t),
-                const Divider(height: 1),
+                for (final t in entry.value)
+                  TransactionRow(
+                    transaction: t,
+                    onChanged: () {
+                      setState(() {
+                        _transactions = _service.getTransactions();
+                      });
+                    },
+                  ),
               ],
             ],
           );

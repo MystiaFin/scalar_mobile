@@ -8,4 +8,8 @@ class TransactionService {
     final data = await _client.get('/api/transactions') as List;
     return data.map((json) => Transaction.fromJson(json)).toList();
   }
+
+  Future<void> updateTransaction(int id, Map<String, dynamic> data) async {
+    await _client.patch('/api/transactions/$id', data);
+  }
 }

@@ -17,16 +17,16 @@ class ApiClient {
     throw Exception('GET $path failed: ${response.statusCode}');
   }
 
-  Future<dynamic> post(String path, Map<String, dynamic> body) async {
+  Future<dynamic> patch(String path, Map<String, dynamic> body) async {
     final base = await _getBaseUrl();
-    final response = await http.post(
+    final response = await http.patch(
       Uri.parse('$base$path'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(body),
     );
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return response.body.isEmpty ? null : jsonDecode(response.body);
     }
-    throw Exception('POST $path failed: ${response.statusCode}');
+    throw Exception('PATCH $path failed: ${response.statusCode}');
   }
 }
