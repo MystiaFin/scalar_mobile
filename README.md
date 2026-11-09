@@ -59,6 +59,43 @@ The app expects a backend serving `GET /api/transactions` returning a JSON array
 ]
 ```
 
+## Windows quick start
+
+Run the app as a Windows desktop app on the same PC as the backend. This doesn't need Nix, an emulator or a phone.
+
+**1. Start the backend.** Follow the Windows quick start in [scalar-engine](https://github.com/MystiaFin/scalar-engine#windows-quick-start) and leave the server running.
+
+**2. Install the tools.**
+
+- [Flutter SDK](https://docs.flutter.dev/get-started/install/windows) 3.44 or newer
+- Visual Studio 2022 with the "Desktop development with C++" workload (not VS Code)
+- Developer Mode, which you can open with `start ms-settings:developers`
+
+**3. Run the app** from a second PowerShell window.
+
+```powershell
+git clone https://github.com/MystiaFin/scalar_mobile
+cd scalar_mobile
+flutter pub get
+flutter run -d windows
+```
+
+**4. Set the backend address** in the app's Settings to `http://localhost:7225`.
+
+The home page opens on the current month, so switch the month filter if your transactions are older.
+
+### Other devices
+
+| Device | Backend address |
+|---|---|
+| Windows or Linux desktop | `http://localhost:7225` |
+| Android emulator | `http://10.0.2.2:7225` |
+| Physical phone | `http://<PC IP>:7225` |
+
+- A physical phone needs port 7225 open in the PC's firewall. Only do this on a trusted network, because the API has no login.
+- On Android, use `flutter run`. A release APK can't reach the backend, because it doesn't have the internet permission.
+- `flutter run -d chrome` can't reach the backend, because the backend doesn't allow browser requests (no CORS).
+
 ## Getting Started
 
 ### Prerequisites
